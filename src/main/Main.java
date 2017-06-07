@@ -32,6 +32,7 @@ public class Main {
 		boolean running = true;
 		Election election = null;
 		Teller teller = null;
+		GitManipulator.initialize();
 
 		while (running) {
 			printMenu();
