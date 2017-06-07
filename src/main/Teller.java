@@ -8,24 +8,27 @@ import java.util.Random;
 
 import org.bouncycastle.math.ec.ECPoint;
 
+import com.google.gson.JsonObject;
+
 import data.Ballot;
 import data.DLEPK;
 import data.PartialDecryption;
 import data.Vote;
 import tools.Crypto;
+import tools.Printer;
 
 public class Teller {
 	private final BigInteger x;
 	public final ECPoint y;
 	private final Random random;
 
-	public Teller() {
-		this(BigInteger.probablePrime(256, new SecureRandom()).mod(Main.curve.getN()));
+	public Teller(JsonObject json) {
+		this(new BigInteger(1, Printer.hexToBytes(json.get("x").getAsString())));
 	}
 
 	public Teller(BigInteger x) {
-		this.x = x.mod(Main.curve.getN());
-		y = Main.curve.getG().multiply(this.x).normalize();
+		this.x = x.mod(Crypto.curve.getN());
+		y = Crypto.curve.getG().multiply(this.x).normalize();
 		random = new SecureRandom();
 	}
 

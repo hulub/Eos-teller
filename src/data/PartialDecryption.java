@@ -4,6 +4,7 @@ import org.bouncycastle.math.ec.ECPoint;
 
 import com.google.gson.JsonObject;
 
+import tools.Crypto;
 import tools.Printer;
 
 public class PartialDecryption {
@@ -13,6 +14,11 @@ public class PartialDecryption {
 	public PartialDecryption(ECPoint S, DLEPK pk) {
 		this.S = S;
 		this.pk = pk;
+	}
+
+	public PartialDecryption(JsonObject json) {
+		S = Crypto.curve.getCurve().decodePoint(Printer.hexToBytes(json.get("S").getAsString()));
+		pk = new DLEPK(json.get("pk").getAsJsonObject());
 	}
 
 	public JsonObject toJsonObject() {

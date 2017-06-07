@@ -6,6 +6,7 @@ import java.util.List;
 import org.bouncycastle.math.ec.ECPoint;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import tools.Printer;
@@ -15,11 +16,18 @@ public class Vote {
 	public List<PartialDecryption> vote_part_dec = new ArrayList<>();
 	public boolean valid = true;
 	public ECPoint vote;
-	
+
 	public Vote(JsonObject json) {
 		vote_enc = new ElGamalTuple(json.get("vote_enc").getAsJsonObject());
+		vote_part_dec = new ArrayList<>();
+
+		if (json.get("vote_part_dec") != null) {
+			JsonArray vote_dec_json = json.get("vote_part_dec").getAsJsonArray();
+			for (JsonElement item : vote_dec_json)
+				vote_part_dec.add(new PartialDecryption(item.getAsJsonObject()));
+		}
 	}
-	
+
 	public Vote(ElGamalTuple vote_enc) {
 		this.vote_enc = vote_enc;
 	}
@@ -32,7 +40,7 @@ public class Vote {
 		return json;
 	}
 
-	public JsonObject toExtendedJsonObject() {
+	public JsonObject toExtendedJsonObject(boolean finished_decryption) {
 		JsonObject json = toJsonObject();
 
 		JsonArray vote_part_dec_json = new JsonArray();
@@ -40,8 +48,10 @@ public class Vote {
 			vote_part_dec_json.add(item.toJsonObject());
 
 		json.add("vote_part_dec", vote_part_dec_json);
-		json.addProperty("vote", Printer.bytesToHex(vote.getEncoded(true)));
-		json.addProperty("valid", valid);
+		if (finished_decryption) {
+			json.addProperty("vote", Printer.bytesToHex(vote.getEncoded(true)));
+			json.addProperty("valid", valid);
+		}
 
 		return json;
 	}
